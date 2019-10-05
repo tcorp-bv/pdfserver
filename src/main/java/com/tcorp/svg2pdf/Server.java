@@ -10,9 +10,9 @@ import java.util.Base64;
 import static spark.Spark.*;
 
 public class Server {
-    public Server(int port){
+    public Server(String keyStoreLocation, String keyStorePassword , int port){
         port(port);
-
+        secure(keyStoreLocation, keyStorePassword, null, null);
         before((request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
             response.header("Access-Control-Request-Method", "*");
