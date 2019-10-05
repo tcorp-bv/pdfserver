@@ -10,10 +10,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 public class Main {
+    private static Server server;
     public static void main(String[] args) throws Exception {
         if(args.length != 1){
             throw new Exception("Please only provide the port as an argument.");
         }
-        new Server(Integer.valueOf(args[0]));
+        server= new Server(Integer.valueOf(args[0]));
     }
 }
