@@ -11,9 +11,10 @@ import java.io.FileOutputStream;
 
 public class Main {
     private static Server server;
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        System.out.println("Starting svg2pdf server...");
         if(args.length != 1){
-            throw new Exception("Please only provide the port as an argument.");
+            throw new RuntimeException("Please only provide the port as an argument.");
         }
         server= new Server(Integer.valueOf(args[0]));
     }
