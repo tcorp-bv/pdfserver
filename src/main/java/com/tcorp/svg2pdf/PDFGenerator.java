@@ -35,7 +35,7 @@ public class PDFGenerator {
         drawer.drawPDFFullSize(embedPage);
 
         drawer.close();
-
+        toEmbed.close();
         return result;
     }
     private static PDDocument getDocumentFromSvgInput(InputStream svgInput) throws IOException, TranscoderException {
@@ -48,7 +48,6 @@ public class PDFGenerator {
         transcoder.transcode(transcoderInput, transcoderOutput);
         pdos.close();
         PDDocument document = PDDocument.load(pdStream.createInputStream());
-
         return document;
     }
 }

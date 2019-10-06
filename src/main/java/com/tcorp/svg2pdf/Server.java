@@ -66,6 +66,7 @@ public class Server {
                     70,
                     30);
             document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
+            document.close();
 //            Transcoder transcoder = new PDFTranscoder();
 //            TranscoderInput transcoderInput = new TranscoderInput(new ByteArrayInputStream(data.toByteArray()));
 //            final CountingOutputStream os = new CountingOutputStream(
