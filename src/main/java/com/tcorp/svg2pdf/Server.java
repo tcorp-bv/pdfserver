@@ -6,6 +6,7 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.fop.svg.PDFTranscoder;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.common.PDStream;
@@ -56,6 +57,7 @@ public class Server {
             res.header("content-type", "application/pdf");
             return res;
         });
+
         get("/transcode/EAN13", (req, res) -> {
             if(!req.queryParams().contains("code"))
                 throw new RuntimeException("Query params must contain code!");
@@ -66,6 +68,7 @@ public class Server {
                     70,
                     30);
             document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
+
             document.close();
 //            Transcoder transcoder = new PDFTranscoder();
 //            TranscoderInput transcoderInput = new TranscoderInput(new ByteArrayInputStream(data.toByteArray()));

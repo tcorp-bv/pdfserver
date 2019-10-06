@@ -32,7 +32,7 @@ public class PalletDrawer {
         drawer.drawSpace(24);
         drawer.drawBreak();
         drawer.drawSpace(24);
-        drawer.drawPDFCenter(labelpdf.getPage(0));
+        drawer.drawPDFCenter(labelpdf, labelpdf.getPage(0));
         drawer.drawSpace(24);
         drawer.drawBreak();
 

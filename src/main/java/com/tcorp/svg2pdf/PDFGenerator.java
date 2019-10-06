@@ -16,9 +16,7 @@ import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.util.Matrix;
 
 import java.awt.geom.AffineTransform;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class PDFGenerator {
     private static final float POINTS_PER_MM = 2.8346457F;
@@ -32,11 +30,17 @@ public class PDFGenerator {
         result.addPage(resultPage);
 
         Drawer drawer = new Drawer(result, resultPage);
-        drawer.drawPDFFullSize(embedPage);
+        drawer.drawPDFFullSize(toEmbed, embedPage);
 
         drawer.close();
+
+        //consolidate this pdf so that it closes as one
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        result.save(bos);
+        result.close();
         toEmbed.close();
-        return result;
+        PDDocument consolidated = PDDocument.load(new ByteArrayInputStream(bos.toByteArray()));
+        return consolidated;
     }
     private static PDDocument getDocumentFromSvgInput(InputStream svgInput) throws IOException, TranscoderException {
         PDStream pdStream = new PDStream(new COSStream());
