@@ -1,18 +1,32 @@
 package com.tcorp.svg2pdf;
 
 import org.apache.batik.transcoder.Transcoder;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.fop.svg.PDFTranscoder;
+import org.apache.pdfbox.cos.COSStream;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.common.PDStream;
+import spark.Request;
+
+import java.io.*;
 import java.util.Base64;
 
 import static spark.Spark.*;
 
 public class Server {
-    public Server(String keyStoreLocation, String keyStorePassword , int port){
-        port(port);
+    public Server(String keyStoreLocation, String keyStorePassword , int port) {
         secure(keyStoreLocation, keyStorePassword, null, null);
+        start(port);
+    }
+    public Server(int port){
+        start(port);
+    }
+    private void start( int port){
+        port(port);
+
         before((request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
             response.header("Access-Control-Request-Method", "*");
@@ -33,6 +47,27 @@ public class Server {
             res.header("content-type", "application/pdf");
             return res;
         });
+        post("/transcode/GS1PALLET", (req, res) -> {
+            //check params
+            PDDocument labelpdf = getDocumentFromRequest(req);
+            PDDocument document = PalletDrawer.draw(labelpdf, req.queryParams("sscc"), req.queryParams("delivery"), req.queryParams("palletnumber"), req.queryParams("date"));
+            document.save("test.pdf");
+            document.close();
+            res.header("content-type", "application/pdf");
+            return res;
+        });
+    }
+    private static PDDocument getDocumentFromRequest(Request req) throws IOException, TranscoderException {
+        PDStream pdStream = new PDStream(new COSStream());
+        OutputStream pdos = pdStream.createOutputStream();
 
+        Transcoder transcoder = new PDFTranscoder();
+        InputStream inStream = req.raw().getInputStream();
+        TranscoderInput transcoderInput = new TranscoderInput(inStream);
+        TranscoderOutput transcoderOutput = new TranscoderOutput(pdos);
+        transcoder.transcode(transcoderInput, transcoderOutput);
+        pdos.close();
+
+        return  PDDocument.load(pdStream.createInputStream());
     }
 }
