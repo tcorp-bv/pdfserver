@@ -59,17 +59,24 @@ public class Drawer {
     }
 
     public void drawPDFCenter(PDPage toDraw) throws IOException {
-        drawPDF(toDraw, (contentBox.getWidth() -40 - toDraw.getMediaBox().getWidth())/2 + 20);
+        drawPDF(toDraw, (contentBox.getWidth() -40 - toDraw.getMediaBox().getWidth())/2 + 20, 1, 1);
     }
     public void drawPDF(PDPage toDraw) throws IOException {
-        drawPDF(toDraw, 0);
+        drawPDF(toDraw, 0, 1, 1);
     }
-    public void drawPDF(PDPage toDraw, float xOffset) throws IOException {
+    public void drawPDFFullSize(PDPage toDraw) throws IOException {
+        drawPDF(toDraw, 0,
+                page.getMediaBox().getWidth()  / toDraw.getMediaBox().getWidth(),
+                page.getMediaBox().getHeight() / toDraw.getMediaBox().getHeight());
+    }
+    public void drawPDF(PDPage toDraw, float xOffset, float scaleX, float scaleY) throws IOException {
+        height += toDraw.getMediaBox().getHeight() * (scaleY - 1);
         PDDocument target = new PDDocument();
         target.addPage(toDraw);
         PDFormXObject xobject = importAsXObject(target, toDraw);
         AffineTransform transform = xobject.getMatrix().createAffineTransform();
         transform.translate(xOffset, contentBox.getHeight() - height - toDraw.getMediaBox().getHeight());
+        transform.scale(scaleX, scaleY);
         xobject.setMatrix(transform);
         toDraw.getResources().add(xobject, "X");
         cos.drawForm(xobject);

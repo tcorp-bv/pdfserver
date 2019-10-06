@@ -43,7 +43,7 @@ public class Server {
             transcoder.transcode(transcoderInput, transcoderOutput);
             res.raw().setContentLength(os.getCount());
             os.flush();
-
+            os.close();
             res.header("content-type", "application/pdf");
             return res;
         });
@@ -53,6 +53,28 @@ public class Server {
             PDDocument document = PalletDrawer.draw(labelpdf, req.queryParams("sscc"), req.queryParams("delivery"), req.queryParams("palletnumber"), req.queryParams("date"));
             document.save("test.pdf");
             document.close();
+            res.header("content-type", "application/pdf");
+            return res;
+        });
+        get("/transcode/EAN13", (req, res) -> {
+            if(!req.queryParams().contains("code"))
+                throw new RuntimeException("Query params must contain code!");
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
+            Barcodes.loadEAN123(req.queryParams("code"), data);
+
+            PDDocument document = PDFGenerator.getDocumentFromSvgInput(new ByteArrayInputStream(data.toByteArray()),
+                    70,
+                    30);
+            document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
+//            Transcoder transcoder = new PDFTranscoder();
+//            TranscoderInput transcoderInput = new TranscoderInput(new ByteArrayInputStream(data.toByteArray()));
+//            final CountingOutputStream os = new CountingOutputStream(
+//                    Base64.getEncoder().wrap(res.raw().getOutputStream()));
+//            TranscoderOutput transcoderOutput = new TranscoderOutput(os);
+//            transcoder.transcode(transcoderInput, transcoderOutput);
+//            res.raw().setContentLength(os.getCount());
+//            os.flush();
+//            os.close();
             res.header("content-type", "application/pdf");
             return res;
         });
