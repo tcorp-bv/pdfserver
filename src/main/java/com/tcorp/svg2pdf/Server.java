@@ -61,24 +61,39 @@ public class Server {
         get("/transcode/EAN13", (req, res) -> {
             if(!req.queryParams().contains("code"))
                 throw new RuntimeException("Query params must contain code!");
-            ByteArrayOutputStream data = new ByteArrayOutputStream();
-            Barcodes.loadEAN123(req.queryParams("code"), data);
 
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
+            Barcodes.loadEAN13(req.queryParams("code"), data);
             PDDocument document = PDFGenerator.getDocumentFromSvgInput(new ByteArrayInputStream(data.toByteArray()),
                     70,
                     30);
             document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
-
             document.close();
-//            Transcoder transcoder = new PDFTranscoder();
-//            TranscoderInput transcoderInput = new TranscoderInput(new ByteArrayInputStream(data.toByteArray()));
-//            final CountingOutputStream os = new CountingOutputStream(
-//                    Base64.getEncoder().wrap(res.raw().getOutputStream()));
-//            TranscoderOutput transcoderOutput = new TranscoderOutput(os);
-//            transcoder.transcode(transcoderInput, transcoderOutput);
-//            res.raw().setContentLength(os.getCount());
-//            os.flush();
-//            os.close();
+            res.header("content-type", "application/pdf");
+            return res;
+        });
+        get("/transcode/GS1PALLET", (req, res) -> {
+            if(!req.queryParams().contains("code"))
+                throw new RuntimeException("Query params must contain code!");
+            if(!req.queryParams().contains("delivery"))
+                throw new RuntimeException("Query params must contain delivery!");
+            if(!req.queryParams().contains("palletnumber"))
+                throw new RuntimeException("Query params must contain palletnumber!");
+            if(!req.queryParams().contains("date"))
+                throw new RuntimeException("Query params must contain date!");
+            String code = req.queryParams("code");
+            String delivery = req.queryParams("delivery");
+            String palletnumber = req.queryParams("palletnumber");
+            String date = req.queryParams("date");
+
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
+            Barcodes.loadGS1Pallet(code, data);
+            PDDocument labelPDF = PDFGenerator.getDocumentFromSvgInput(new ByteArrayInputStream(data.toByteArray()),
+                    90, 45);
+            PDDocument document = PalletDrawer.draw(labelPDF, code, delivery, palletnumber, date);
+            document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
+            document.close();
+            labelPDF.close();
             res.header("content-type", "application/pdf");
             return res;
         });

@@ -42,7 +42,7 @@ public class PDFGenerator {
         PDDocument consolidated = PDDocument.load(new ByteArrayInputStream(bos.toByteArray()));
         return consolidated;
     }
-    private static PDDocument getDocumentFromSvgInput(InputStream svgInput) throws IOException, TranscoderException {
+    public static PDDocument getDocumentFromSvgInput(InputStream svgInput) throws IOException, TranscoderException {
         PDStream pdStream = new PDStream(new COSStream());
         OutputStream pdos = pdStream.createOutputStream();
 
