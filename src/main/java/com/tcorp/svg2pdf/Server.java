@@ -89,7 +89,7 @@ public class Server {
             ByteArrayOutputStream data = new ByteArrayOutputStream();
             Barcodes.loadGS1Pallet(code, data);
             PDDocument labelPDF = PDFGenerator.getDocumentFromSvgInput(new ByteArrayInputStream(data.toByteArray()),
-                    90, 45);
+                    72, 36);
             PDDocument document = PalletDrawer.draw(labelPDF, code, delivery, palletnumber, date);
             document.save(Base64.getEncoder().wrap(res.raw().getOutputStream()));
             document.close();

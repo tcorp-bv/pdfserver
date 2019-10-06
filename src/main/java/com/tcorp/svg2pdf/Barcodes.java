@@ -26,6 +26,7 @@ public class Barcodes {
 
         public static void loadGS1Pallet(String code, OutputStream outputStream) throws BarcodeCanvasSetupException, TransformerException {
         SVGCanvasProvider provider = new SVGCanvasProvider(false, 0);
+      //  ean128Bean.setQuietZone(3/dpi);
         ean128Bean.generateBarcode(provider, code);
 
         loadSVG(provider, outputStream);
