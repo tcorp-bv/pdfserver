@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id "com.github.johnrengelman.shadow" version "5.1.0"
 }
 
 group 'com.tcorp'
-version '0.0.1'
+version '0.0.2'
 
 sourceCompatibility = 1.8
 
@@ -29,12 +30,18 @@ dependencies {
     compile group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.17'
 // https://mvnrepository.com/artifact/net.sf.barcode4j/barcode4j
     compile group: 'net.sf.barcode4j', name: 'barcode4j', version: '2.1'
+// https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-codec
+    compile group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.11'
+// https://mvnrepository.com/artifact/org.apache.xmlgraphics/fop
+    compile group: 'org.apache.xmlgraphics', name: 'fop', version: '0.94'
 
-    compile group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.7'
 
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.2")
 }
 jar {
     dependsOn configurations.runtime
@@ -44,4 +51,7 @@ jar {
             it.isDirectory() ? it : zipTree(it)
         }
     }
+}
+test {
+    useJUnitPlatform()
 }

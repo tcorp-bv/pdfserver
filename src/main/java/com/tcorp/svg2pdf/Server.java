@@ -6,7 +6,6 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.fop.svg.PDFTranscoder;
-import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.common.PDStream;

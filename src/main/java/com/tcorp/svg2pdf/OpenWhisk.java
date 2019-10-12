@@ -9,24 +9,35 @@ import org.krysalis.barcode4j.output.BarcodeCanvasSetupException;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 public class OpenWhisk {
     private static final Gson gson = new Gson();
     private static final String TYPE_GS1_PALLET = "GS1PALLET";
     private static final String TYPE_EAN13 = "EAN13";
-    public static JsonObject main(JsonObject args) throws Exception{
+
+    public static JsonObject main(JsonObject args){
         if (!args.has("type") || !(args.get("type") instanceof JsonPrimitive) || !(args.getAsJsonPrimitive("type").isString()))
             throw new RuntimeException("No type argument of type string");
         if (!args.has("params") || !(args.get("params") instanceof JsonObject))
             throw new RuntimeException("No params argument of type jsonobject");
         String type = args.get("type").getAsString();
         JsonObject params = args.get("params").getAsJsonObject();
-
-        String base64pdf = getPdf(type, params);
-        JsonObject result = new JsonObject();
-        result.addProperty("pdf.base64", base64pdf);
-        return result;
+        try {
+            String base64pdf = getPdf(type, params);
+            JsonObject result = new JsonObject();
+            result.addProperty("pdf.base64", base64pdf);
+            return result;
+        }catch (Exception e){
+            JsonObject error = new JsonObject();
+            StringWriter writer = new StringWriter();
+            e.printStackTrace(new PrintWriter(writer));
+            error.addProperty("error", writer.toString());
+            error.addProperty("stacktrace", e.getStackTrace().toString());
+            return error;
+        }
     }
 
     /**
@@ -74,11 +85,11 @@ public class OpenWhisk {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         LabelPDFGenerator.getGS1PalletLabel(bos, paramsObj.code, paramsObj.delivery, paramsObj.palletNumber, paramsObj.date);
-        return  bos.toString(StandardCharsets.UTF_8.toString());
+        return  new String(bos.toByteArray(), StandardCharsets.UTF_8);
     }
 
 
-    private static class EANParams {
+    private static class EAN13Params {
         public String code;
 
         public String getNullFieldAndType() {
@@ -88,13 +99,13 @@ public class OpenWhisk {
         }
     }
     private static String handleEAN13(JsonObject params) throws IOException, TranscoderException, BarcodeCanvasSetupException, TransformerException {
-        GS1PalletParams paramsObj = gson.fromJson(params, GS1PalletParams.class);
+        EAN13Params paramsObj = gson.fromJson(params, EAN13Params.class);
         String nullField = paramsObj.getNullFieldAndType();
         if (nullField != null)
             throw new IllegalArgumentException("Field " + nullField + " was not found in the params");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        LabelPDFGenerator.getGS1PalletLabel(bos, paramsObj.code, paramsObj.delivery, paramsObj.palletNumber, paramsObj.date);
+        LabelPDFGenerator.getEAN13Label(bos, paramsObj.code);
         return  bos.toString(StandardCharsets.UTF_8.toString());
     }
 }
